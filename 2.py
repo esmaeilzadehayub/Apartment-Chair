@@ -1,6 +1,4 @@
-import re
-
-def parse_floor_plan_correctly(file_path):
+def parse_floor_plan(file_path):
     """
     Parses the floor plan from the file and counts the different types of chairs.
     Outputs the total number of each chair type for the whole apartment and per room.
@@ -12,21 +10,19 @@ def parse_floor_plan_correctly(file_path):
     chair_types = {'W': 'wooden chair', 'P': 'plastic chair', 'S': 'sofa', 'C': 'china chair'}
     total_counts = {chair: 0 for chair in chair_types.values()}
     room_counts = {}
-    current_room = ""
 
     # Read the file and process each line
     with open(file_path, 'r') as file:
         lines = file.readlines()
 
+    current_room = ""
     for line in lines:
-        # Check for room name and update current room
-        room_name_match = re.search(r'\(([^)]+)\)', line)
-        if room_name_match:
-            current_room = room_name_match.group(1).strip()
+        if '(' in line and ')' in line:
+            # Extract the room name
+            current_room = line[line.find('(') + 1:line.find(')')].strip()
             if current_room not in room_counts:
                 room_counts[current_room] = {chair: 0 for chair in chair_types.values()}
-            continue  # Skip the room name line
-
+        
         # Count each type of chair in the line
         for char, chair in chair_types.items():
             count = line.count(char)
@@ -36,18 +32,15 @@ def parse_floor_plan_correctly(file_path):
 
     return total_counts, room_counts
 
-# Testing the function
-def main():
-    file_path = 'rooms.txt'  # Update this path to the actual location of the file
-    total_counts, room_counts = parse_floor_plan_correctly(file_path)
+# Testing the revised function with the provided file
+file_path = 'rooms.txt'
+total_counts, room_counts = parse_floor_plan(file_path)
 
-    # Formatting the output
-    output = "total:\n" + ', '.join([f"{k[0]}: {v}" for k, v in total_counts.items()]) + "\n"
-    for room in sorted(room_counts.keys()):
-        output += f"{room}:\n" + ', '.join([f"{k[0]}: {v}" for k, v in room_counts[room].items()]) + "\n"
+# Formatting the output
+output = "total:\n" + ', '.join([f"{k[0]}: {v}" for k, v in total_counts.items()]) + "\n"
+for room in sorted(room_counts.keys()):
+    output += f"{room}:\n" + ', '.join([f"{k[0]}: {v}" for k, v in room_counts[room].items()]) + "\n"
 
-    print(output)
+output
 
-if __name__ == "__main__":
-    main()
 
